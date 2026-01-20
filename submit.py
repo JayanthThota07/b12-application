@@ -1,29 +1,24 @@
 import json
 import hmac
 import hashlib
+import datetime
 import requests
-from datetime import datetime, timezone
 
-SIGNING_SECRET = b"hello-there-from-b12"
+SECRET = b"hello-there-from-b12"
 URL = "https://b12.io/apply/submission"
 
 payload = {
-    "action_run_link": "https://github.com/YOUR_USERNAME/b12-application/actions/runs/RUN_ID",
+    "action_run_link": "https://github.com/JayanthThota07/b12-application/actions/runs/RUN_ID",
     "email": "venkatajayanththota@gmail.com",
-    "name": "Your Name",
-    "repository_link": "https://github.com/JayathtThota07/b12-application",
-    "resume_link": "https://link-to-your-resume-or-linkedin",
-    "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+    "name": "Venkata Jayanth Thota",
+    "repository_link": "https://github.com/JayanthThota07",
+    "resume_link": "https://www.linkedin.com/in/venkata-jayanth-thota-947212358/",
+    "timestamp": datetime.datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
 }
 
-# Canonical JSON: sorted keys, compact separators
 body = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
 
-signature = hmac.new(
-    SIGNING_SECRET,
-    body,
-    hashlib.sha256
-).hexdigest()
+signature = hmac.new(SECRET, body, hashlib.sha256).hexdigest()
 
 headers = {
     "Content-Type": "application/json",
@@ -31,7 +26,9 @@ headers = {
 }
 
 response = requests.post(URL, data=body, headers=headers)
-response.raise_for_status()
 
-data = response.json()
-print("Receipt:", data["receipt"])
+print("Status:", response.status_code)
+print("Response:", response.text)
+
+if response.status_code == 200:
+    print("RECEIPT:", response.json()["receipt"])
